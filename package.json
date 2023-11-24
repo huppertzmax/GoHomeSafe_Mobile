@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "react-native-maps": "^1.8.0"
+    "react-native-config": "^1.5.1",
+    "react-native-maps": "1.8.0"
   }
 }
