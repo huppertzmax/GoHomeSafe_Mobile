@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet } from 'react-native';
 import MapView, {Marker, Polyline} from 'react-native-maps'
-//import Config from 'react-native-config';
 
 const url = "http://143.248.216.170:5000/route"
 
@@ -9,13 +8,6 @@ const startLat = 36.337651;
 const startLon = 127.389951;
 const endLat = 36.337487;
 const endLon = 127.378449;
-
-//coordinates = 
-/*const formattedCoordinates = coordinates.map(coordinate => ({
-  latitude: coordinate[1],
-  longitude: coordinate[0]
-}));
-*/
 
 export default class App extends Component {
   state = {
