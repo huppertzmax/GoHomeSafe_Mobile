@@ -7,7 +7,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 
+
 const { width } = Dimensions.get('window');
+const combinedList = require('../utils/utils');
 
 //const startLat = 36.337651;
 //const startLon = 127.389951;
@@ -43,10 +45,20 @@ class Map extends Component {
       const duration_fastest = dict_fastest.duration; 
       const length_fastest = dict_fastest.lenght;
 
-      const cctvs = await cctvLocations(startLat, startLon, endLat, endLon);
+      const cctvLocationArray = await cctvLocations(startLat, startLon, endLat, endLon);
+      const cctvIDs = Array.from({ length: cctvLocationArray.length }, (_, index) => index + 1);
+      const cctvs = combinedList(cctvIDs, cctvLocationArray);
+
       const dictSensor = await sensorLocations(startLat, startLon, endLat, endLon);
-      const sensorGoodLocations = dictSensor.sensorGoodLocations;
-      const sensorBadLocations = dictSensor.sensorBadLocations;
+
+      const sensorGoodLocationArray = dictSensor.sensorGoodLocations;
+      const sensorGoodIDs = Array.from({ length: sensorGoodLocationArray.length }, (_, index) => index + 20000 + 1);
+      const sensorGoodLocations = combinedList(sensorGoodIDs, sensorGoodLocationArray);
+
+      const sensorBadLocationArray = dictSensor.sensorBadLocations;
+      const sensorBadIDs = Array.from({ length: sensorBadLocationArray.length }, (_, index) => index + 40000 + 1);
+      const sensorBadLocations = combinedList(sensorBadIDs, sensorBadLocationArray);
+      
       console.log("CCTVS")
       console.log(cctvs)
       console.log("Sensors")
@@ -132,8 +144,8 @@ class Map extends Component {
 
           <Marker
             coordinate={{latitude: endLat, longitude: endLon,}}
-            title="End"
-            pinColor="green"
+            title="Destination"
+            pinColor="orange"
           />
 
           <Polyline coordinates={this.state.coordinates_fastest.map(coord => ({
@@ -151,25 +163,33 @@ class Map extends Component {
             strokeColor="#009c05"
             strokeWidth={5} 
           />
-          {console.log(this.state.sensorGoodLocations)}
-          {this.state.sensorGoodLocations.map((lat, lon, safe) => (
+
+          {this.state.sensorGoodLocations.map(sensor => (
             <Marker
-              key={uuidv4()}
-              coordinate={{ latitude: lat, longitude: lon }}
+              key={sensor.id}
+              coordinate={{ latitude: sensor.coordinates[0], longitude: sensor.coordinates[1] }}
               pinColor="green" 
+              title='Sensor safe'
             />
           ))}
 
-          {console.log(this.state.sensorBadLocations)}
-          {this.state.sensorBadLocations.map((lat, lon, safe) => (
+          {this.state.sensorBadLocations.map(sensor => (
             <Marker
-              key={uuidv4()}
-              coordinate={{ latitude: lat, longitude: lon }}
-              pinColor="red" 
+              key={sensor.id}
+              coordinate={{ latitude: sensor.coordinates[0], longitude: sensor.coordinates[1] }}
+              pinColor="red"
+              title='Sensor unsafe'
             />
           ))}
 
-          
+          {this.state.cctvs.map(cctv => (
+              <Marker
+              key={cctv.id}
+              coordinate={{ latitude: cctv.coordinates[0], longitude: cctv.coordinates[1] }}
+              pinColor="black" 
+              title='CCTV'
+            />
+          ))}
 
           </MapView>
         </View>
@@ -208,13 +228,13 @@ const styles = StyleSheet.create({
   },
   textBoxHeader: {
     fontSize: 18,
-    paddingLeft: 5,
+    paddingLeft: 10,
     paddingTop: 5,
     fontWeight: 'bold',
   },
   textBoxStats: {
     fontSize: 16,
-    paddingLeft: 5,
+    paddingLeft: 10,
     paddingTop: 2,
   },
   buttonSafe: {
