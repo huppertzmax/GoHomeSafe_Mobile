@@ -78,10 +78,40 @@ class Map extends Component {
     const deltaLon = Math.abs(startLon-middleLon)*2.0 + 0.001;
 
     const startFast = () => {
+      navigation.navigate('Routing', {
+        "startLat": startLat,
+        "startLon": startLon,
+        "endLat": endLat,
+        "endLon": endLon,
+        "middleLat": middleLat, 
+        "middleLon": middleLon,
+        "deltaLat": deltaLat,
+        "deltaLon": deltaLon,
+        "coordinates": this.state.coordinates_fastest,
+        "cctvs": this.state.cctvs,
+        "sensorGoodLocations": this.state.sensorGoodLocations,
+        "sensorBadLocations": this.state.sensorBadLocations,
+        "color": "#f54248",
+      });
       console.log("Fast route started");
     };
 
     const startSafe = () => {
+      navigation.navigate('Routing', {
+        "startLat": startLat,
+        "startLon": startLon,
+        "endLat": endLat,
+        "endLon": endLon,
+        "middleLat": middleLat, 
+        "middleLon": middleLon,
+        "deltaLat": deltaLat,
+        "deltaLon": deltaLon,
+        "coordinates": this.state.coordinates_safest,
+        "cctvs": this.state.cctvs,
+        "sensorGoodLocations": this.state.sensorGoodLocations,
+        "sensorBadLocations": this.state.sensorBadLocations,
+        "color": "#009c05",
+      });
       console.log("Safe route started");
     };
 
