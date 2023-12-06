@@ -1,4 +1,4 @@
-const url = "http://143.248.216.46:5000"
+const url = "http://143.248.216.173:5000"
 
 export const safestRoute = async (startLat, startLon, endLat, endLon) => {
     try {

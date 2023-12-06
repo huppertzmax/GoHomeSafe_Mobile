@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "@react-navigation/native": "^6.1.9",
+    "@react-navigation/stack": "^6.3.20",
     "react-native-config": "^1.5.1",
     "react-native-maps": "1.8.0"
   }

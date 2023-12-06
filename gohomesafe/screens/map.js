@@ -1,20 +1,12 @@
 import React, {Component} from 'react';
-import { StyleSheet, Text, View, Dimensions, Pressable, Button } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Pressable } from 'react-native';
 import MapView, {Marker, Polyline} from 'react-native-maps'
 import { safestRoute, fastestRoute, sensorLocations, cctvLocations } from '../api/api';
-import 'react-native-get-random-values';
-import { v4 as uuidv4 } from 'uuid';
-
-
-
 
 const { width } = Dimensions.get('window');
 const combinedList = require('../utils/utils');
 
-//const startLat = 36.337651;
-//const startLon = 127.389951;
-//const endLat = 36.337487;
-//const endLon = 127.378449;
+
 
 class Map extends Component {
   state = {
