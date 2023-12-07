@@ -14,5 +14,18 @@ function combineLists(ids, coordinates) {
     return combinedList;
 }
 
+function dateAndTime() {
+    const date = new Date();
+    const optionsDate = { timeZone: 'Asia/Seoul', dateStyle: 'full' };
+    const dateString = date.toLocaleString('en-US', optionsDate);
 
-module.exports = combineLists;
+    const optionsTime = { timeZone: 'Asia/Seoul', timeStyle: 'short', hour12: false};
+    const timeString = date.toLocaleString('en-US', optionsTime);
+
+    const dateAndTimeString = dateString + " " + timeString;
+
+    return dateAndTimeString;
+}
+
+
+module.exports = {combineLists, dateAndTime};

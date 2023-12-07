@@ -1,4 +1,4 @@
-const url = "http://143.248.216.50:5000"
+const url =  process.env.EXPO_PUBLIC_URL;
 
 export const safestRoute = async (startLat, startLon, endLat, endLon) => {
     try {

@@ -1,14 +1,20 @@
 import React, {Component} from 'react';
 import { StyleSheet, Text, View, Dimensions, Pressable, Modal, TouchableHighlight } from 'react-native';
 import MapView, {Marker, Polyline} from 'react-native-maps'
+import * as Location from 'expo-location'
 
 const { width } = Dimensions.get('window');
+const {combineLists, dateAndTime} = require('../utils/utils');
+
 
 class Routing extends Component {
     constructor(props) {
         super(props);
         this.state = {
             modalVisible: true,
+            notifyFriends: false,
+            location: null,
+            modalAlarmVisible: false,
         };
     }
 
@@ -16,29 +22,100 @@ class Routing extends Component {
         this.setState({ modalVisible: visible });
     };
 
+    setNotifyFriends = (notfiy) => {
+      this.setState({ notifyFriends: notfiy });
+    };
+
+    getLocation = async () => {
+      try {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+  
+        if (status !== 'granted') {
+          console.log('Permission to access location was denied');
+          return;
+        }
+  
+        let locationData = await Location.getCurrentPositionAsync({});
+        const { latitude, longitude } = locationData.coords;
+        this.setState({ location: { latitude, longitude } });
+      } catch (error) {
+        console.error('Error fetching location: ', error);
+      }
+    };
+
+
     render() {
   
         const { navigation, route } = this.props;
         const { startLat, startLon, endLat, endLon, middleLat, middleLon, deltaLat, deltaLon, coordinates, cctvs, sensorGoodLocations, sensorBadLocations, color } = route.params;
         const modalVisible = this.state.modalVisible;
+        const modalAlarmVisible = this.state.modalAlarmVisible;
 
         const noNotification = () => {
-            this.setModalVisible(false)
+            this.setModalVisible(false);
+            this.setNotifyFriends(false);
         }
         const notifyFriends = () => {
-            const date = new Date();
-            const optionsDate = { timeZone: 'Asia/Seoul', dateStyle: 'full' };
-            const dateString = date.toLocaleString('en-US', optionsDate);
+            const dateAndTimeString = dateAndTime();  
 
-            const optionsTime = { timeZone: 'Asia/Seoul', timeStyle: 'short', hour12: false};
-            const timeString = date.toLocaleString('en-US', optionsTime);
+            console.log(`User started route from ${startLat}, ${startLon} to ${endLat}, ${endLon} at ${dateAndTimeString}`);
+            this.setModalVisible(false);
+            this.setNotifyFriends(true);
+        }
 
-            console.log(`User started route from ${startLat}, ${startLon} to ${endLat}, ${endLon} at ${dateString} ${timeString}`);
-            this.setModalVisible(false)
+        const endRoute = () => {
+          if (this.state.notifyFriends == true) {
+            const dateAndTimeString = dateAndTime();
+            console.log(`User ended route from ${startLat}, ${startLon} to ${endLat}, ${endLon} at ${dateAndTimeString}`);
+          }
+          navigation.navigate('Home');
+        }
+
+        const alarm = async () => {
+          const dateAndTimeString = dateAndTime();
+          try {
+            await this.getLocation();
+            const location = this.state.location;
+
+            if (this.state.notifyFriends == true) {
+            //@TODO add location data if possible
+            console.log(`ALARM: User at the position ${location.latitude}, ${location.longitude} on route from ${startLat}, ${startLon} to ${endLat}, ${endLon} at ${dateAndTimeString}`);
+          }
+          console.log(`ALARM: User at the position ${location.latitude}, ${location.longitude} on route from ${startLat}, ${startLon} to ${endLat}, ${endLon} at ${dateAndTimeString} requires help by the police`);
+          //@TODO add sound and flashing red screen
+          }
+          catch {
+            if (this.state.notifyFriends == true) {
+              console.log(`ALARM: User on route from ${startLat}, ${startLon} to ${endLat}, ${endLon} at ${dateAndTimeString}`);
+            }
+            console.log(`ALARM: User on route from ${startLat}, ${startLon} to ${endLat}, ${endLon} at ${dateAndTimeString} requires help by the police`);
+          }
         }
 
         return (
         <View style={{ flex: 1 }}>
+          <View style={styles.containerBoxes} pointerEvents="box-none">
+            <View style={styles.boxRoute}>
+              <Text style={styles.textBoxHeader}>Route</Text>
+
+              <View style={styles.pressableView}>
+                <Pressable onPress={endRoute} style={styles.buttonEndRoute}>
+                  <Text style={styles.textButton}>End route</Text>
+                </Pressable>
+              </View>
+            </View>
+
+            <View style={styles.boxAlarm}>
+              <Text style={styles.textBoxHeader}>Notify police</Text>
+
+              <View style={styles.pressableView}>
+                <Pressable onPress={alarm} style={styles.buttonAlarm}>
+                  <Text style={styles.textButton}>Alarm</Text>
+                </Pressable>
+              </View>
+            </View>
+        </View>
+
         <Modal
             animationType="slide"
             transparent={true}
@@ -50,6 +127,33 @@ class Routing extends Component {
             <View style={styles.modalView}>
                 <Text style={styles.textModalHeader}>Friend Notification</Text>
                 <Text style={styles.textModal}>Do you wish to inform your friends that you start your route?</Text>
+                <View style={styles.container}>
+                    <View style={styles.pressableViewLeft}>
+                        <Pressable onPress={noNotification} style={styles.buttonDontSend}>
+                            <Text style={styles.textButtonDontSend}>Don't notify</Text>
+                        </Pressable>
+                    </View>
+
+                    <View style={styles.pressableViewRight}>
+                        <Pressable onPress={notifyFriends} style={styles.buttonSend}>
+                            <Text style={styles.textButtonSend}>Yes, notify</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </View>
+        </Modal>
+
+        <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalAlarmVisible}
+            onRequestClose={() => {
+                this.setModalVisible(!modalAlarmVisible);
+            }}
+            >
+            <View style={styles.modalView}>
+                <Text style={styles.textModalHeader}>Alarm send</Text>
+                <Text style={styles.textModal}>The police got notified and is coming to your current location at {}</Text>
                 <View style={styles.container}>
                     <View style={styles.pressableViewLeft}>
                         <Pressable onPress={noNotification} style={styles.buttonDontSend}>
@@ -144,6 +248,16 @@ class Routing extends Component {
       left: 0.1*width,
       right: 0.1*width,
     },
+    containerBoxes: {
+      flex: 1,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'flex-start',
+      paddingTop: 20,
+      zIndex: 2,
+      width: width,
+      height: 130,
+    },
     modalView: {
         position: 'absolute',
         top: '40%',
@@ -216,7 +330,61 @@ class Routing extends Component {
         alignContent: 'center',
         justifyContent: 'center',
         borderRadius: 10,
-      }
+      },
+      pressableView: {
+        width: 160,
+        height: 40,
+        alignContent: 'center',
+        justifyContent: 'center',
+        paddingLeft: 10,
+        paddingTop: 10,
+      },
+      textBoxHeader: {
+        fontSize: 18,
+        paddingLeft: 10,
+        paddingTop: 5,
+        fontWeight: 'bold',
+      },
+      buttonEndRoute: {
+        width: 160, 
+        height: 40,
+        alignContent: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'blue',
+        borderRadius: 10,
+        marginTop: 10,
+      },
+      buttonAlarm: {
+        width: 160, 
+        height: 40,
+        alignContent: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#f54248',
+        borderRadius: 10,
+        marginTop: 10,
+      },
+      boxRoute: {
+        width: 190,
+        height: 95, 
+        backgroundColor: 'white', 
+        marginHorizontal: 5, 
+        borderWidth: 5,
+        borderColor: 'blue',
+        borderRadius: 10,
+      },
+      boxAlarm: {
+        width: 190,
+        height: 95, 
+        backgroundColor: 'white', 
+        marginHorizontal: 5, 
+        borderWidth: 5,
+        borderColor: '#f54248',
+        borderRadius: 10,
+      },
+      textButton: {
+        textAlign: 'center',
+        fontSize: 18,
+      },
 });
   
   export default Routing;

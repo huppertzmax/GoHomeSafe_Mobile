@@ -4,7 +4,7 @@ import MapView, {Marker, Polyline} from 'react-native-maps'
 import { safestRoute, fastestRoute, sensorLocations, cctvLocations } from '../api/api';
 
 const { width } = Dimensions.get('window');
-const combinedList = require('../utils/utils');
+const {combineLists, dateAndTime} = require('../utils/utils');
 
 
 
@@ -39,17 +39,17 @@ class Map extends Component {
 
       const cctvLocationArray = await cctvLocations(startLat, startLon, endLat, endLon);
       const cctvIDs = Array.from({ length: cctvLocationArray.length }, (_, index) => index + 1);
-      const cctvs = combinedList(cctvIDs, cctvLocationArray);
+      const cctvs = combineLists(cctvIDs, cctvLocationArray);
 
       const dictSensor = await sensorLocations(startLat, startLon, endLat, endLon);
 
       const sensorGoodLocationArray = dictSensor.sensorGoodLocations;
       const sensorGoodIDs = Array.from({ length: sensorGoodLocationArray.length }, (_, index) => index + 20000 + 1);
-      const sensorGoodLocations = combinedList(sensorGoodIDs, sensorGoodLocationArray);
+      const sensorGoodLocations = combineLists(sensorGoodIDs, sensorGoodLocationArray);
 
       const sensorBadLocationArray = dictSensor.sensorBadLocations;
       const sensorBadIDs = Array.from({ length: sensorBadLocationArray.length }, (_, index) => index + 40000 + 1);
-      const sensorBadLocations = combinedList(sensorBadIDs, sensorBadLocationArray);
+      const sensorBadLocations = combineLists(sensorBadIDs, sensorBadLocationArray);
       
       console.log("CCTVS")
       console.log(cctvs)
