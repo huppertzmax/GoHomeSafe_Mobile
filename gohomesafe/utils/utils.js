@@ -19,7 +19,7 @@ function dateAndTime() {
     const optionsDate = { timeZone: 'Asia/Seoul', dateStyle: 'full' };
     const dateString = date.toLocaleString('en-US', optionsDate);
 
-    const optionsTime = { timeZone: 'Asia/Seoul', timeStyle: 'short', hour12: false};
+    const optionsTime = { timeZone: 'Asia/Seoul', timeStyle: 'long', hour12: false};
     const timeString = date.toLocaleString('en-US', optionsTime);
 
     const dateAndTimeString = dateString + " " + timeString;

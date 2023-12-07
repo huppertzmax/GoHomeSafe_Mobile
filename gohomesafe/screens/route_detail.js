@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { StyleSheet, Text, View, Dimensions, Pressable, Modal, TouchableHighlight } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Pressable, Modal, Image } from 'react-native';
 import MapView, {Marker, Polyline} from 'react-native-maps'
 import * as Location from 'expo-location'
 
@@ -18,6 +18,37 @@ class Routing extends Component {
         };
     }
 
+
+    async componentDidMount() {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+  
+        if (status !== 'granted') {
+          console.log('Permission to access location was denied');
+          return;
+        }
+  
+        this.locationListener = await Location.watchPositionAsync(
+          {
+            accuracy: Location.Accuracy.BestForNavigation,
+            timeInterval: 5000,
+            distanceInterval: 0, 
+          },
+          (newLocation) => {
+            this.setState({ location: newLocation.coords });
+          }
+        );
+      } catch (error) {
+        console.error('Error getting location', error);
+      }
+    }
+  
+    componentWillUnmount() {
+      if (this.locationListener) {
+        this.locationListener.remove();
+      }
+    }
+
     setModalVisible = (visible) => {
         this.setState({ modalVisible: visible });
     };
@@ -26,20 +57,26 @@ class Routing extends Component {
       this.setState({ notifyFriends: notfiy });
     };
 
+    setmodalAlarmVisible = (visible) => {
+      this.setState({ modalAlarmVisible: visible });
+    };
+
     getLocation = async () => {
-      try {
-        let { status } = await Location.requestForegroundPermissionsAsync();
-  
-        if (status !== 'granted') {
-          console.log('Permission to access location was denied');
-          return;
+      if(location == null) {
+        try {
+          let { status } = await Location.requestForegroundPermissionsAsync();
+    
+          if (status !== 'granted') {
+            console.log('Permission to access location was denied');
+            return;
+          }
+    
+          let locationData = await Location.getCurrentPositionAsync({});
+          const { latitude, longitude } = locationData.coords;
+          this.setState({ location: { latitude, longitude } });
+        } catch (error) {
+          console.error('Error fetching location: ', error);
         }
-  
-        let locationData = await Location.getCurrentPositionAsync({});
-        const { latitude, longitude } = locationData.coords;
-        this.setState({ location: { latitude, longitude } });
-      } catch (error) {
-        console.error('Error fetching location: ', error);
       }
     };
 
@@ -71,8 +108,13 @@ class Routing extends Component {
           navigation.navigate('Home');
         }
 
+        const closeAlarmModal = () => {
+          this.setmodalAlarmVisible(false)
+        }
+
         const alarm = async () => {
           const dateAndTimeString = dateAndTime();
+          this.setmodalAlarmVisible(true);
           try {
             await this.getLocation();
             const location = this.state.location;
@@ -151,22 +193,16 @@ class Routing extends Component {
                 this.setModalVisible(!modalAlarmVisible);
             }}
             >
-            <View style={styles.modalView}>
-                <Text style={styles.textModalHeader}>Alarm send</Text>
-                <Text style={styles.textModal}>The police got notified and is coming to your current location at {}</Text>
-                <View style={styles.container}>
-                    <View style={styles.pressableViewLeft}>
-                        <Pressable onPress={noNotification} style={styles.buttonDontSend}>
-                            <Text style={styles.textButtonDontSend}>Don't notify</Text>
-                        </Pressable>
-                    </View>
-
-                    <View style={styles.pressableViewRight}>
-                        <Pressable onPress={notifyFriends} style={styles.buttonSend}>
-                            <Text style={styles.textButtonSend}>Yes, notify</Text>
-                        </Pressable>
-                    </View>
-                </View>
+            <View style={styles.modalAlarmView}>
+                <Text style={styles.textModalAlarmHeader}>Alarm send</Text>
+                {this.state.location != null &&
+                <Text style={styles.textModal}>The police is notified and is coming to your current location: {'\n'} {this.state.location.latitude}, {this.state.location.longitude}</Text>
+                } 
+                  <View style={styles.boxAlarmModal}>
+                      <Pressable onPress={closeAlarmModal} style={styles.buttonAlarmClose}>
+                          <Text style={styles.textButton}>Close window</Text>
+                      </Pressable>
+                  </View>
             </View>
         </Modal>
 
@@ -190,6 +226,21 @@ class Routing extends Component {
             title="Destination"
             pinColor="orange"
         />
+
+        {this.state.location && (
+            <Marker
+              coordinate={{
+                latitude: this.state.location.latitude,
+                longitude: this.state.location.longitude,
+              }}
+              title="Your Location"
+              >
+              <Image 
+                source={require('../images/santa.png')}
+                style={{ width: 60, height: 60 }}
+              />
+            </Marker>
+          )}
 
         <Polyline coordinates={coordinates.map(coord => ({
             latitude: coord.latitude,
@@ -277,10 +328,34 @@ class Routing extends Component {
         shadowRadius: 4,
         elevation: 5,
       },
+      modalAlarmView: {
+        position: 'absolute',
+        top: '40%',
+        left: 0.05*width,
+        width: 0.9*width,
+        height: 180,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        paddingTop: 20,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.75,
+        shadowRadius: 4,
+        elevation: 5,
+      },
       textModalHeader: {
         fontWeight: 'bold',
         fontSize: 20,
         color: 'black',
+      },
+      textModalAlarmHeader: {
+        fontWeight: 'bold',
+        fontSize: 20,
+        color: '#f54248',
       },
       textModal: {
         fontSize: 16,
@@ -326,6 +401,15 @@ class Routing extends Component {
         backgroundColor: 'blue',
         borderColor: 'blue',
         width: 120,
+        height: 40,
+        alignContent: 'center',
+        justifyContent: 'center',
+        borderRadius: 10,
+      },
+      buttonAlarmClose: {
+        backgroundColor: '#f54248',
+        borderColor: '#f54248',
+        width: 140,
         height: 40,
         alignContent: 'center',
         justifyContent: 'center',
