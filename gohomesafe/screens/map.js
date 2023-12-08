@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { StyleSheet, Text, View, Dimensions, Pressable } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Pressable, Image } from 'react-native';
 import MapView, {Marker, Polyline} from 'react-native-maps'
 import { safestRoute, fastestRoute, sensorLocations, cctvLocations } from '../api/api';
 
@@ -50,12 +50,6 @@ class Map extends Component {
       const sensorBadLocationArray = dictSensor.sensorBadLocations;
       const sensorBadIDs = Array.from({ length: sensorBadLocationArray.length }, (_, index) => index + 40000 + 1);
       const sensorBadLocations = combineLists(sensorBadIDs, sensorBadLocationArray);
-      
-      console.log("CCTVS")
-      console.log(cctvs)
-      console.log("Sensors")
-      console.log(sensorGoodLocations)
-      console.log(sensorBadLocations)
 
       this.setState({ coordinates_safest, duration_safest, length_safest,
         coordinates_fastest, duration_fastest, length_fastest, cctvs, sensorGoodLocations, sensorBadLocations  });
@@ -69,7 +63,7 @@ class Map extends Component {
   render() {
 
     const { navigation, route } = this.props;
-    const { startLat, startLon, endLat, endLon } = route.params;
+    const { startLat, startLon, endLat, endLon, lat, lon } = route.params;
 
     const middleLat = (startLat+endLat)/2.0;
     const middleLon = (startLon + endLon)/2.0;
@@ -212,6 +206,21 @@ class Map extends Component {
               title='CCTV'
             />
           ))}
+
+          {lat && lon && (
+            <Marker
+              coordinate={{
+                latitude: lat,
+                longitude: lon,
+              }}
+              title="Your Location"
+              >
+              <Image 
+                source={require('../images/santa.png')}
+                style={{ width: 60, height: 60 }}
+              />
+            </Marker>
+          )}
 
           </MapView>
         </View>
