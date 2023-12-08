@@ -1,7 +1,8 @@
-import React, {useState, useCallback} from 'react';
-import { View, Button, TextInput, StyleSheet, Text, Dimensions, Keyboard } from 'react-native';
+import React, {useState, useCallback, useEffect} from 'react';
+import { View, Button, TextInput, StyleSheet, Text, Dimensions, Keyboard, Image } from 'react-native';
 import * as Location from 'expo-location'
 import { useFocusEffect } from '@react-navigation/native';
+import { weatherData } from '../api/api';
 
 
 const { width } = Dimensions.get('window');
@@ -24,11 +25,22 @@ const HomeScreen = ({ navigation }) => {
   const [location, setLocation] = useState(null);
   const [startIsLocation, setStartIsLocation] = useState(false);
 
+  const [weather, setWeather] = useState(null);
+
   useFocusEffect(
     useCallback(() => {
       clearInputs();
     }, []) 
   );
+
+  useEffect(() => {
+    async function fetchWeatherData() {
+      const data = await weatherData();
+      setWeather(data);
+    }
+  
+    fetchWeatherData();
+  }, []);
 
   const clearInputs = () => {
     setStartText('대전시 서구 둔산동 1100번지');
@@ -162,6 +174,23 @@ const HomeScreen = ({ navigation }) => {
         />
         <Button title="Minimize keyboard" onPress={dismissKeyboard}/>
         <Button title="Calculate route" onPress={handleSubmit}/>
+
+        {weather && 
+        <Text style={styles.headerWeather}>Weather in {weather.name}</Text>
+        }
+        {weather && 
+        <Text style={styles.textWeather}>
+            Currently {weather.description}{'\n'}
+            Sunrise at {weather.sunrise}{'\n'}
+            Sunset at {weather.sunset}{'\n'}
+        </Text>
+        }
+        {weather &&
+          <Image
+          source={{ uri: `https://openweathermap.org/img/wn/${weather.icon}.png` }}
+          style={{ width: 50, height: 50 }}
+        />
+        }
     </View>
   );
 };
@@ -209,6 +238,16 @@ const styles = StyleSheet.create({
       borderBlockColor: 'blue',
       borderWidth: 2,
       borderRadius: 10,
+    },
+    headerWeather: {
+      marginLeft: 10,
+      marginTop: 40,
+      fontSize: 30,
+      marginBottom: 10,
+    }, 
+    textWeather: {
+      marginLeft: 10,
+      fontSize: 20,
     }
   });
 

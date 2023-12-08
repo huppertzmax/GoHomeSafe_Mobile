@@ -1,4 +1,5 @@
 const url =  process.env.EXPO_PUBLIC_URL;
+const APIKey = process.env.EXPO_PUBLIC_WEATHER_API;
 
 export const safestRoute = async (startLat, startLon, endLat, endLon) => {
     try {
@@ -86,3 +87,35 @@ export const sensorLocations = async (startLat, startLon, endLat, endLon) => {
     console.error('Error fetching data:', error);
   }
 };
+
+export const weatherData = async () => {
+  try {
+    console.log((`Requesting: https://api.openweathermap.org/data/2.5/weather?q=Daejeon&units=metric&appid=...`));
+    const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Daejeon&units=metric&appid=${APIKey}`);
+    if (response.ok) {
+      const data = await response.json();
+      const main = data.weather[0].main;
+      const desc = data.weather[0].description; 
+      const icon = data.weather[0].icon;
+      const sunrise = data.sys.sunrise;
+      const sunset = data.sys.sunset;
+      const name = data.name;
+      console.log(data)
+      return {
+        "main": main,
+        "description": desc,
+        "icon": icon,
+        "sunrise": sunrise,
+        "sunset": sunset,
+        "name": name,
+      }
+    } 
+    else {
+      console.error('Failed to fetch data');
+    }
+  }
+  catch (error) {
+    console.error('Error fetching data:', error);
+  }
+
+}
