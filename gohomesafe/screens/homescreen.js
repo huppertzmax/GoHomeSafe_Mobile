@@ -6,6 +6,7 @@ import { weatherData } from '../api/api';
 
 
 const { width } = Dimensions.get('window');
+const {combineLists, dateAndTime, getRecommendation} = require('../utils/utils');
 
 //Example (semigood): 53 Daedeok-daero 185beon-gil, Daejeon to 16 Wolpyeong-ro 14beon-gil, Daejeon
 //Example (semigood): 811 Wolpyeong-dong, Daejeon
@@ -178,19 +179,11 @@ const HomeScreen = ({ navigation }) => {
         {weather && 
         <Text style={styles.headerWeather}>Weather in {weather.name}</Text>
         }
-        {weather && 
-        <Text style={styles.textWeather}>
-            Currently {weather.description}{'\n'}
-            Sunrise at {weather.sunrise}{'\n'}
-            Sunset at {weather.sunset}{'\n'}
-        </Text>
-        }
-        {weather &&
-          <Image
-          source={{ uri: `https://openweathermap.org/img/wn/${weather.icon}.png` }}
-          style={{ width: 50, height: 50 }}
-        />
-        }
+        {weather && <Text style={styles.textWeather}>Currently {weather.description}</Text>}
+        {weather && <Text style={styles.textWeather}>Sunrise at {new Date(weather.sunrise * 1000).toLocaleTimeString()}</Text>}
+        {weather && <Text style={styles.textWeather}>Sunset at {new Date(weather.sunset * 1000).toLocaleTimeString()}</Text>}
+        
+        {weather && <Text style={styles.textWeather}>We recommend {getRecommendation(weather)}</Text>}
     </View>
   );
 };
@@ -246,8 +239,14 @@ const styles = StyleSheet.create({
       marginBottom: 10,
     }, 
     textWeather: {
-      marginLeft: 10,
+      marginLeft: 20,
+      marginBottom: 10,
       fontSize: 20,
+      marginRight: 20,
+    }, 
+    weatherIcon: {
+      borderColor: 'black',
+      borderWidth: 1, 
     }
   });
 

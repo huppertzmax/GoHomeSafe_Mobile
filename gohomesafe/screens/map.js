@@ -4,7 +4,7 @@ import MapView, {Marker, Polyline} from 'react-native-maps'
 import { safestRoute, fastestRoute, sensorLocations, cctvLocations } from '../api/api';
 
 const { width } = Dimensions.get('window');
-const {combineLists, dateAndTime} = require('../utils/utils');
+const {combineLists, dateAndTime, getRecommendation} = require('../utils/utils');
 
 
 

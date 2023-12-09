@@ -100,6 +100,7 @@ export const weatherData = async () => {
       const sunrise = data.sys.sunrise;
       const sunset = data.sys.sunset;
       const name = data.name;
+      const id = data.weather[0].id;
       console.log(data)
       return {
         "main": main,
@@ -108,6 +109,7 @@ export const weatherData = async () => {
         "sunrise": sunrise,
         "sunset": sunset,
         "name": name,
+        "id": id,
       }
     } 
     else {

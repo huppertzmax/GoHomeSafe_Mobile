@@ -4,7 +4,7 @@ import MapView, {Marker, Polyline} from 'react-native-maps'
 import * as Location from 'expo-location'
 
 const { width } = Dimensions.get('window');
-const {combineLists, dateAndTime} = require('../utils/utils');
+const {combineLists, dateAndTime, getRecommendation} = require('../utils/utils');
 
 
 class Routing extends Component {
@@ -62,7 +62,7 @@ class Routing extends Component {
     };
 
     getLocation = async () => {
-      if(location == null) {
+      if(this.state.location == null) {
         try {
           let { status } = await Location.requestForegroundPermissionsAsync();
     
@@ -73,7 +73,7 @@ class Routing extends Component {
     
           let locationData = await Location.getCurrentPositionAsync({});
           const { latitude, longitude } = locationData.coords;
-          this.setState({ location: { latitude, longitude } });
+          setState({ location: { latitude, longitude } });
         } catch (error) {
           console.error('Error fetching location: ', error);
         }
@@ -120,17 +120,17 @@ class Routing extends Component {
             const location = this.state.location;
 
             if (this.state.notifyFriends == true) {
-            //@TODO add location data if possible
-            console.log(`ALARM: User at the position ${location.latitude}, ${location.longitude} on route from ${startLat}, ${startLon} to ${endLat}, ${endLon} at ${dateAndTimeString}`);
+            console.log(`ALERT: User at the position ${location.latitude}, ${location.longitude} on route from ${startLat}, ${startLon} to ${endLat}, ${endLon} at ${dateAndTimeString}`);
           }
-          console.log(`ALARM: User at the position ${location.latitude}, ${location.longitude} on route from ${startLat}, ${startLon} to ${endLat}, ${endLon} at ${dateAndTimeString} requires help by the police`);
+          console.log(`ALERT: User at the position ${location.latitude}, ${location.longitude} on route from ${startLat}, ${startLon} to ${endLat}, ${endLon} at ${dateAndTimeString} requires help by the police`);
           //@TODO add sound and flashing red screen
           }
-          catch {
+          catch (error){
+            console.log(error)
             if (this.state.notifyFriends == true) {
-              console.log(`ALARM: User on route from ${startLat}, ${startLon} to ${endLat}, ${endLon} at ${dateAndTimeString}`);
+              console.log(`ALERT: User on route from ${startLat}, ${startLon} to ${endLat}, ${endLon} at ${dateAndTimeString}`);
             }
-            console.log(`ALARM: User on route from ${startLat}, ${startLon} to ${endLat}, ${endLon} at ${dateAndTimeString} requires help by the police`);
+            console.log(`ALERT: User on route from ${startLat}, ${startLon} to ${endLat}, ${endLon} at ${dateAndTimeString} requires help by the police`);
           }
         }
 
@@ -152,7 +152,7 @@ class Routing extends Component {
 
               <View style={styles.pressableView}>
                 <Pressable onPress={alarm} style={styles.buttonAlarm}>
-                  <Text style={styles.textButton}>Alarm</Text>
+                  <Text style={styles.textButton}>Alert</Text>
                 </Pressable>
               </View>
             </View>
@@ -194,7 +194,7 @@ class Routing extends Component {
             }}
             >
             <View style={styles.modalAlarmView}>
-                <Text style={styles.textModalAlarmHeader}>Alarm send</Text>
+                <Text style={styles.textModalAlarmHeader}>Alert send</Text>
                 {this.state.location != null &&
                 <Text style={styles.textModal}>The police is notified and is coming to your current location: {'\n'} {this.state.location.latitude}, {this.state.location.longitude}</Text>
                 } 
