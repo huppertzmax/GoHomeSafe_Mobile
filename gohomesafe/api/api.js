@@ -1,5 +1,6 @@
 const url =  process.env.EXPO_PUBLIC_URL;
-const APIKey = process.env.EXPO_PUBLIC_WEATHER_API;
+const WEATHERAPIKey = process.env.EXPO_PUBLIC_WEATHER_API;
+const ORSAPIKey = process.env.EXPO_PUBLIC_ORS_API;
 
 export const safestRoute = async (startLat, startLon, endLat, endLon) => {
     try {
@@ -91,7 +92,7 @@ export const sensorLocations = async (startLat, startLon, endLat, endLon) => {
 export const weatherData = async () => {
   try {
     console.log((`Requesting: https://api.openweathermap.org/data/2.5/weather?q=Daejeon&units=metric&appid=...`));
-    const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Daejeon&units=metric&appid=${APIKey}`);
+    const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Daejeon&units=metric&appid=${WEATHERAPIKey}`);
     if (response.ok) {
       const data = await response.json();
       const main = data.weather[0].main;
@@ -101,7 +102,7 @@ export const weatherData = async () => {
       const sunset = data.sys.sunset;
       const name = data.name;
       const id = data.weather[0].id;
-      console.log(data)
+      // console.log(data)
       return {
         "main": main,
         "description": desc,
@@ -110,6 +111,28 @@ export const weatherData = async () => {
         "sunset": sunset,
         "name": name,
         "id": id,
+      }
+    } 
+    else {
+      console.error('Failed to fetch data');
+    }
+  }
+  catch (error) {
+    console.error('Error fetching data:', error);
+  }
+
+}
+
+export const geocode = async (address) => {
+  try {
+    console.log((`Requesting: https://api.openrouteservice.org/geocode/search?api_key=...&text=${address}`));
+    const response = await fetch(`https://api.openrouteservice.org/geocode/search?api_key=${ORSAPIKey}&text=${address}`);
+    if (response.ok) {
+      const data = await response.json();
+      coordinates = data.features[0].geometry.coordinates
+      return {
+        "latitude": coordinates[1],
+        "longitude": coordinates[0],
       }
     } 
     else {

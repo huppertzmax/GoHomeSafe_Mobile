@@ -2,7 +2,7 @@ import React, {useState, useCallback, useEffect} from 'react';
 import { View, Button, TextInput, StyleSheet, Text, Dimensions, Keyboard, Image } from 'react-native';
 import * as Location from 'expo-location'
 import { useFocusEffect } from '@react-navigation/native';
-import { weatherData } from '../api/api';
+import { weatherData, geocode } from '../api/api';
 
 
 const { width } = Dimensions.get('window');
@@ -15,7 +15,7 @@ const {combineLists, dateAndTime, getRecommendation} = require('../utils/utils')
 
 const HomeScreen = ({ navigation }) => {
 
-  const [startText, setStartText] = useState('대전시 서구 둔산동 1100번지');
+  const [startText, setStartText] = useState('대전 서구 둔산동 1100번지');
   const [endText, setEndText] = useState('대전 서구 계룡로354번길 166');
 
   const [startLat, setStartLat] = useState();
@@ -44,7 +44,7 @@ const HomeScreen = ({ navigation }) => {
   }, []);
 
   const clearInputs = () => {
-    setStartText('대전시 서구 둔산동 1100번지');
+    setStartText('대전 서구 둔산동 1100번지');
     setEndText('대전 서구 계룡로354번길 166');
     setLocation(null);
     setStartIsLocation(false);
@@ -62,7 +62,10 @@ const HomeScreen = ({ navigation }) => {
     }
     else {
       try {
-        const coordinatesStart = await geoLocation(startText);
+        const coordinatesStart = await geocoding(startText);
+        //console.log(`latitude of start: ${coordinatesStart.latitude}`)
+        //console.log(`longitude of start: ${coordinatesStart.longitude}`)
+
         if (coordinatesStart != null) {
           setStartLat(coordinatesStart.latitude);
           setStartLon(coordinatesStart.longitude);
@@ -74,7 +77,10 @@ const HomeScreen = ({ navigation }) => {
     }
 
     try {
-      const coordinatesEnd = await geoLocation(endText);
+      const coordinatesEnd = await geocoding(endText);
+      //console.log(`latitude of end: ${coordinatesEnd.latitude}`)
+      //console.log(`longitude of end: ${coordinatesEnd.longitude}`)
+
       if (coordinatesEnd != null) {
         setEndLat(coordinatesEnd.latitude);
         setEndLon(coordinatesEnd.longitude);
@@ -133,21 +139,20 @@ const HomeScreen = ({ navigation }) => {
       }
   };
 
-  const geoLocation = async (address) => {
+  const geocoding = async (address) => {
     try {
-      const location = await Location.geocodeAsync(address);
-      if (location && location.length > 0) {
-        console.log(`Geolocation result: ${location[0]} for: ${address}`)
-        return location[0];
+      const location = await geocode(address);
+      if (location) {
+        return location;
       } 
       else {
-        Alert.alert('Error', 'Unable to find coordinates for the given address');
+        alert('Error: Unable to find coordinates for the given address');
         return null;
       }
     } 
     catch (error) {
       console.error('Error finding coordinates: ', error);
-      Alert.alert('Error', 'Something went wrong while finding coordinates');
+      alert('Error: Something went wrong while finding coordinates');
     }
   }
 
