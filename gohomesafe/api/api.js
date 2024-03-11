@@ -69,26 +69,6 @@ export const cctvLocations = async (startLat, startLon, endLat, endLon) => {
   }
 };
 
-export const sensorLocations = async (startLat, startLon, endLat, endLon) => {
-  try {
-    console.log(`Requesting: ${url}/sensor/area?start_lat=${startLat}&start_lon=${startLon}&end_lat=${endLat}&end_lon=${endLon}`)
-    const response = await fetch(`${url}/sensor/area?start_lat=${startLat}&start_lon=${startLon}&end_lat=${endLat}&end_lon=${endLon}`);
-    
-    if (response.ok) {
-      const data = await response.json();
-      const sensorGoodLocations = data.filter(sensor => sensor[2] == 1);
-      const sensorBadLocations = data.filter(sensor => sensor[2] == 0);
-      return {"sensorGoodLocations": sensorGoodLocations, "sensorBadLocations": sensorBadLocations}
-    } 
-    else {
-      console.error('Failed to fetch data');
-    }
-  } 
-  catch (error) {
-    console.error('Error fetching data:', error);
-  }
-};
-
 export const weatherData = async () => {
   try {
     console.log((`Requesting: https://api.openweathermap.org/data/2.5/weather?q=Daejeon&units=metric&appid=...`));

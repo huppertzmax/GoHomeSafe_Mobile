@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { StyleSheet, Text, View, Dimensions, Pressable, Image } from 'react-native';
 import MapView, {Marker, Polyline} from 'react-native-maps'
-import { safestRoute, fastestRoute, sensorLocations, cctvLocations } from '../api/api';
+import { safestRoute, fastestRoute, cctvLocations } from '../api/api';
 
 const { width } = Dimensions.get('window');
 const {combineLists, dateAndTime, getRecommendation} = require('../utils/utils');
@@ -17,8 +17,6 @@ class Map extends Component {
     duration_fastest: 0.0,
     length_fastest: 0.0,
     cctvs: [],
-    sensorGoodLocations: [],
-    sensorBadLocations: [],
   };
 
   async componentDidMount() {
@@ -41,18 +39,8 @@ class Map extends Component {
       const cctvIDs = Array.from({ length: cctvLocationArray.length }, (_, index) => index + 1);
       const cctvs = combineLists(cctvIDs, cctvLocationArray);
 
-      const dictSensor = await sensorLocations(startLat, startLon, endLat, endLon);
-
-      const sensorGoodLocationArray = dictSensor.sensorGoodLocations;
-      const sensorGoodIDs = Array.from({ length: sensorGoodLocationArray.length }, (_, index) => index + 20000 + 1);
-      const sensorGoodLocations = combineLists(sensorGoodIDs, sensorGoodLocationArray);
-
-      const sensorBadLocationArray = dictSensor.sensorBadLocations;
-      const sensorBadIDs = Array.from({ length: sensorBadLocationArray.length }, (_, index) => index + 40000 + 1);
-      const sensorBadLocations = combineLists(sensorBadIDs, sensorBadLocationArray);
-
       this.setState({ coordinates_safest, duration_safest, length_safest,
-        coordinates_fastest, duration_fastest, length_fastest, cctvs, sensorGoodLocations, sensorBadLocations  });
+        coordinates_fastest, duration_fastest, length_fastest, cctvs  });
 
         console.log(" --------------- Completed Requesting ---------------")
     } catch (error) {
@@ -83,8 +71,6 @@ class Map extends Component {
         "deltaLon": deltaLon,
         "coordinates": this.state.coordinates_fastest,
         "cctvs": this.state.cctvs,
-        "sensorGoodLocations": this.state.sensorGoodLocations,
-        "sensorBadLocations": this.state.sensorBadLocations,
         "color": "#f54248",
       });
       console.log("Fast route started");
@@ -102,8 +88,6 @@ class Map extends Component {
         "deltaLon": deltaLon,
         "coordinates": this.state.coordinates_safest,
         "cctvs": this.state.cctvs,
-        "sensorGoodLocations": this.state.sensorGoodLocations,
-        "sensorBadLocations": this.state.sensorBadLocations,
         "color": "#009c05",
       });
       console.log("Safe route started");
@@ -179,24 +163,6 @@ class Map extends Component {
             strokeColor="#009c05"
             strokeWidth={5} 
           />
-
-          {this.state.sensorGoodLocations.map(sensor => (
-            <Marker
-              key={sensor.id}
-              coordinate={{ latitude: sensor.coordinates[0], longitude: sensor.coordinates[1] }}
-              pinColor="green" 
-              title='Sensor safe'
-            />
-          ))}
-
-          {this.state.sensorBadLocations.map(sensor => (
-            <Marker
-              key={sensor.id}
-              coordinate={{ latitude: sensor.coordinates[0], longitude: sensor.coordinates[1] }}
-              pinColor="red"
-              title='Sensor unsafe'
-            />
-          ))}
 
           {this.state.cctvs.map(cctv => (
               <Marker

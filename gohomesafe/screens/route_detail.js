@@ -84,7 +84,7 @@ class Routing extends Component {
     render() {
   
         const { navigation, route } = this.props;
-        const { startLat, startLon, endLat, endLon, middleLat, middleLon, deltaLat, deltaLon, coordinates, cctvs, sensorGoodLocations, sensorBadLocations, color } = route.params;
+        const { startLat, startLon, endLat, endLon, middleLat, middleLon, deltaLat, deltaLon, coordinates, cctvs, color } = route.params;
         const modalVisible = this.state.modalVisible;
         const modalAlarmVisible = this.state.modalAlarmVisible;
 
@@ -249,24 +249,6 @@ class Routing extends Component {
             strokeColor={color}
             strokeWidth={5} 
         /> 
-
-        {sensorGoodLocations.map(sensor => (
-            <Marker
-            key={sensor.id}
-            coordinate={{ latitude: sensor.coordinates[0], longitude: sensor.coordinates[1] }}
-            pinColor="green" 
-            title='Sensor safe'
-        />
-        ))}
-
-        {sensorBadLocations.map(sensor => (
-            <Marker
-            key={sensor.id}
-            coordinate={{ latitude: sensor.coordinates[0], longitude: sensor.coordinates[1] }}
-            pinColor="red"
-            title='Sensor unsafe'
-        />
-        ))}
 
         {cctvs.map(cctv => (
             <Marker
