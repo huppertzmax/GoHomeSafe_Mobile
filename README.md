@@ -44,3 +44,6 @@ This project constitutes a proof of concept aimed at leveraging technology to au
 
 ## Future Work 
 The project still contains some bugs which I will be working on in the future. On top of that the Alarm and Friend notification functionality so far only prints something to the terminal. This will be changed in future versions. Currently the routes can only be calculated in Daejeon. The next step therefore is to extend this project to more cities.
+
+## Images
+![Application](images/banner.png)
