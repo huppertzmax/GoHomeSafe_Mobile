@@ -1,22 +1,19 @@
 import React, {useState, useCallback, useEffect} from 'react';
-import { View, Button, TextInput, StyleSheet, Text, Dimensions, Keyboard, Image } from 'react-native';
+import { View, Button, TextInput, Text, Dimensions, Keyboard} from 'react-native';
 import * as Location from 'expo-location'
 import { useFocusEffect } from '@react-navigation/native';
 import { weatherData, geocode } from '../api/api';
+import { homescreen_style } from '../styles/homescreen_style';
 
 
 const { width } = Dimensions.get('window');
-const {combineLists, dateAndTime, getRecommendation} = require('../utils/utils');
+const {combineLists, dateAndTime, getWeatherRecommendation} = require('../utils/utils');
 
-//Example (semigood): 53 Daedeok-daero 185beon-gil, Daejeon to 16 Wolpyeong-ro 14beon-gil, Daejeon
-//Example (semigood): 811 Wolpyeong-dong, Daejeon
-//Thursday Party: 53 Daedeok-daero 185beon-gil, Daejeon
-//GS25 (very good): 대전 서구 계룡로354번길 166
 
 const HomeScreen = ({ navigation }) => {
 
-  const [startText, setStartText] = useState('대전 서구 둔산동 1100번지');
-  const [endText, setEndText] = useState('대전 서구 계룡로354번길 166');
+  const [startText, setStartText] = useState('Daedeok-daero 185beon-gil');
+  const [endText, setEndText] = useState('166 Gyeryong-ro 354beon-gil');
 
   const [startLat, setStartLat] = useState();
   const [startLon, setStartLon] = useState();
@@ -44,8 +41,8 @@ const HomeScreen = ({ navigation }) => {
   }, []);
 
   const clearInputs = () => {
-    setStartText('대전 서구 둔산동 1100번지');
-    setEndText('대전 서구 계룡로354번길 166');
+    setStartText('Daedeok-daero 185beon-gil');
+    setEndText('166 Gyeryong-ro 354beon-gil');
     setLocation(null);
     setStartIsLocation(false);
 
@@ -56,59 +53,63 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
-    if (startIsLocation == true && location ) {
-      setStartLat(location.latitude);
-      setStartLon(location.longitude);
-    }
-    else {
-      try {
-        const coordinatesStart = await geocoding(startText);
-        //console.log(`latitude of start: ${coordinatesStart.latitude}`)
-        //console.log(`longitude of start: ${coordinatesStart.longitude}`)
-
-        if (coordinatesStart != null) {
-          setStartLat(coordinatesStart.latitude);
-          setStartLon(coordinatesStart.longitude);
-        }
-      }
-      catch {
-        alert('Error: Something went wrong while finding the start coordinates');
-      }
-    }
-
     try {
-      const coordinatesEnd = await geocoding(endText);
-      //console.log(`latitude of end: ${coordinatesEnd.latitude}`)
-      //console.log(`longitude of end: ${coordinatesEnd.longitude}`)
-
-      if (coordinatesEnd != null) {
-        setEndLat(coordinatesEnd.latitude);
-        setEndLon(coordinatesEnd.longitude);
+      let startCoordinatesPromise;
+      let endCoordinatesPromise;
+      if (startIsLocation == true && location ) {
+        setStartLat(location.latitude);
+        setStartLon(location.longitude);
       }
-    }
-    catch {
-      alert('Error: Something went wrong while finding the end coordinates');
-    }
-
-    if (startLat && startLon && endLat && endLon) {
-      let lat = null;
-      let lon = null;
-        if (location != null) {
-          lat = location.latitude;
-          lon = location.longitude;
-        }
-        navigation.navigate('Map', {
-          "startLat": parseFloat(startLat),
-          "startLon": parseFloat(startLon),
-          "endLat": parseFloat(endLat),
-          "endLon": parseFloat(endLon),
-          "lat": lat,
-          "lon": lon,
+      else {
+        startCoordinatesPromise = geocoding(startText)
+        .then(coordinatesStart => {
+          if (coordinatesStart) {
+            setStartLat(coordinatesStart.latitude);
+            setStartLon(coordinatesStart.longitude);
+          }
+        })
+        .catch(error => {
+          throw new Error('Error fetching start coordinates: ' + error.message);
         });
-      } else {
-        alert('Please fill out all fields');
       }
-  };
+
+      endCoordinatesPromise = geocoding(endText)
+      .then(coordinatesEnd => {
+        if (coordinatesEnd) {
+          setEndLat(coordinatesEnd.latitude);
+          setEndLon(coordinatesEnd.longitude);
+        }
+      })
+      .catch(error => {
+        throw new Error('Error fetching end coordinates: ' + error.message);
+      });
+
+      await Promise.all([startCoordinatesPromise, endCoordinatesPromise]);
+
+      if (startLat && startLon && endLat && endLon) {
+        let lat = null;
+        let lon = null;
+          if (location != null) {
+            lat = location.latitude;
+            lon = location.longitude;
+          }
+          navigation.navigate('Map', {
+            "startLat": parseFloat(startLat),
+            "startLon": parseFloat(startLon),
+            "endLat": parseFloat(endLat),
+            "endLon": parseFloat(endLon),
+            "lat": lat,
+            "lon": lon,
+          });
+        } else {
+          alert('Please fill out all fields');
+        
+        }
+    }
+  catch (error) {
+    alert('Error: ' + error.message);
+  }
+};
 
   const dismissKeyboard = () => {
     Keyboard.dismiss();
@@ -159,10 +160,10 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View>
-        <Text style={styles.textWelcome}>Welcome to</Text>
-        <Text style={styles.header}>GoHomeSafe</Text>
+        <Text style={homescreen_style.textWelcome}>Welcome to</Text>
+        <Text style={homescreen_style.header}>GoHomeSafe</Text>
         <TextInput
-            style={styles.inputStart}
+            style={homescreen_style.inputStart}
             placeholder="Start Latitude"
             value={startText}
             onChangeText={(text) => {
@@ -173,7 +174,7 @@ const HomeScreen = ({ navigation }) => {
         <Button title="Current Location" onPress={getLocation}/>
 
         <TextInput
-            style={styles.inputEnd}
+            style={homescreen_style.inputEnd}
             placeholder="End address"
             value={endText}
             onChangeText={(text) => setEndText(text)}
@@ -182,77 +183,15 @@ const HomeScreen = ({ navigation }) => {
         <Button title="Calculate route" onPress={handleSubmit}/>
 
         {weather && 
-        <Text style={styles.headerWeather}>Weather in {weather.name}</Text>
+        <Text style={homescreen_style.headerWeather}>Weather in {weather.name}</Text>
         }
-        {weather && <Text style={styles.textWeather}>Currently {weather.description}</Text>}
-        {weather && <Text style={styles.textWeather}>Sunrise at {new Date(weather.sunrise * 1000).toLocaleTimeString()}</Text>}
-        {weather && <Text style={styles.textWeather}>Sunset at {new Date(weather.sunset * 1000).toLocaleTimeString()}</Text>}
+        {weather && <Text style={homescreen_style.textWeather}>Currently {weather.description}</Text>}
+        {weather && <Text style={homescreen_style.textWeather}>Sunrise at {new Date(weather.sunrise * 1000).toLocaleTimeString()}</Text>}
+        {weather && <Text style={homescreen_style.textWeather}>Sunset at {new Date(weather.sunset * 1000).toLocaleTimeString()}</Text>}
         
-        {weather && <Text style={styles.textWeather}>We recommend {getRecommendation(weather)}</Text>}
+        {weather && <Text style={homescreen_style.textWeather}>We recommend {getWeatherRecommendation(weather)}</Text>}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      paddingHorizontal: 20,
-    },
-    inputStart: {
-      height: 40,
-      width: width - 40,
-      borderColor: 'gray',
-      borderWidth: 1,
-      paddingHorizontal: 10,
-      marginHorizontal: 20,
-    },
-    inputEnd: {
-      height: 40,
-      width: width - 40,
-      borderColor: 'gray',
-      borderWidth: 1,
-      paddingHorizontal: 10,
-      marginTop: 40,
-      marginHorizontal: 20,
-      marginBottom: 20,
-    },
-    header: {
-      fontSize: 50,
-      fontWeight: 'bold',
-      textAlign: 'center',
-      marginTop: 20,
-      marginBottom: 30,
-    },
-    textWelcome: {
-      fontSize: 32,
-      fontWeight: 'normal',
-      textAlign: 'center',
-      marginTop: 20,
-    },
-    buttonRoute: {
-      color: 'blue',
-      borderBlockColor: 'blue',
-      borderWidth: 2,
-      borderRadius: 10,
-    },
-    headerWeather: {
-      marginLeft: 10,
-      marginTop: 40,
-      fontSize: 30,
-      marginBottom: 10,
-    }, 
-    textWeather: {
-      marginLeft: 20,
-      marginBottom: 10,
-      fontSize: 20,
-      marginRight: 20,
-    }, 
-    weatherIcon: {
-      borderColor: 'black',
-      borderWidth: 1, 
-    }
-  });
 
 export default HomeScreen;

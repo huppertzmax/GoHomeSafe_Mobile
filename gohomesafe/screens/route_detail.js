@@ -2,9 +2,10 @@ import React, {Component} from 'react';
 import { StyleSheet, Text, View, Dimensions, Pressable, Modal, Image } from 'react-native';
 import MapView, {Marker, Polyline} from 'react-native-maps'
 import * as Location from 'expo-location'
+import { route_style } from '../styles/route_style'
 
 const { width } = Dimensions.get('window');
-const {combineLists, dateAndTime, getRecommendation} = require('../utils/utils');
+const {combineLists, dateAndTime, getWeatherRecommendation} = require('../utils/utils');
 
 
 class Routing extends Component {
@@ -136,23 +137,23 @@ class Routing extends Component {
 
         return (
         <View style={{ flex: 1 }}>
-          <View style={styles.containerBoxes} pointerEvents="box-none">
-            <View style={styles.boxRoute}>
-              <Text style={styles.textBoxHeader}>Route</Text>
+          <View style={route_style.containerBoxes} pointerEvents="box-none">
+            <View style={route_style.boxRoute}>
+              <Text style={route_style.textBoxHeader}>Route</Text>
 
-              <View style={styles.pressableView}>
-                <Pressable onPress={endRoute} style={styles.buttonEndRoute}>
-                  <Text style={styles.textButton}>End route</Text>
+              <View style={route_style.pressableView}>
+                <Pressable onPress={endRoute} style={route_style.buttonEndRoute}>
+                  <Text style={route_style.textButton}>End route</Text>
                 </Pressable>
               </View>
             </View>
 
-            <View style={styles.boxAlarm}>
-              <Text style={styles.textBoxHeader}>Notify police</Text>
+            <View style={route_style.boxAlarm}>
+              <Text style={route_style.textBoxHeader}>Notify police</Text>
 
-              <View style={styles.pressableView}>
-                <Pressable onPress={alarm} style={styles.buttonAlarm}>
-                  <Text style={styles.textButton}>Alert</Text>
+              <View style={route_style.pressableView}>
+                <Pressable onPress={alarm} style={route_style.buttonAlarm}>
+                  <Text style={route_style.textButton}>Alert</Text>
                 </Pressable>
               </View>
             </View>
@@ -166,19 +167,19 @@ class Routing extends Component {
                 this.setModalVisible(!modalVisible);
             }}
             >
-            <View style={styles.modalView}>
-                <Text style={styles.textModalHeader}>Friend Notification</Text>
-                <Text style={styles.textModal}>Do you wish to inform your friends that you start your route?</Text>
-                <View style={styles.container}>
-                    <View style={styles.pressableViewLeft}>
-                        <Pressable onPress={noNotification} style={styles.buttonDontSend}>
-                            <Text style={styles.textButtonDontSend}>Don't notify</Text>
+            <View style={route_style.modalView}>
+                <Text style={route_style.textModalHeader}>Friend Notification</Text>
+                <Text style={route_style.textModal}>Do you wish to inform your friends that you start your route?</Text>
+                <View style={route_style.container}>
+                    <View style={route_style.pressableViewLeft}>
+                        <Pressable onPress={noNotification} style={route_style.buttonDontSend}>
+                            <Text style={route_style.textButtonDontSend}>Don't notify</Text>
                         </Pressable>
                     </View>
 
-                    <View style={styles.pressableViewRight}>
-                        <Pressable onPress={notifyFriends} style={styles.buttonSend}>
-                            <Text style={styles.textButtonSend}>Yes, notify</Text>
+                    <View style={route_style.pressableViewRight}>
+                        <Pressable onPress={notifyFriends} style={route_style.buttonSend}>
+                            <Text style={route_style.textButtonSend}>Yes, notify</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -193,14 +194,14 @@ class Routing extends Component {
                 this.setModalVisible(!modalAlarmVisible);
             }}
             >
-            <View style={styles.modalAlarmView}>
-                <Text style={styles.textModalAlarmHeader}>Alert send</Text>
+            <View style={route_style.modalAlarmView}>
+                <Text style={route_style.textModalAlarmHeader}>Alert send</Text>
                 {this.state.location != null &&
-                <Text style={styles.textModal}>The police is notified and is coming to your current location: {'\n'} {this.state.location.latitude}, {this.state.location.longitude}</Text>
+                <Text style={route_style.textModal}>The police is notified and is coming to your current location: {'\n'} {this.state.location.latitude}, {this.state.location.longitude}</Text>
                 } 
-                  <View style={styles.boxAlarmModal}>
-                      <Pressable onPress={closeAlarmModal} style={styles.buttonAlarmClose}>
-                          <Text style={styles.textButton}>Close window</Text>
+                  <View style={route_style.boxAlarmModal}>
+                      <Pressable onPress={closeAlarmModal} style={route_style.buttonAlarmClose}>
+                          <Text style={route_style.textButton}>Close window</Text>
                       </Pressable>
                   </View>
             </View>
@@ -271,186 +272,4 @@ class Routing extends Component {
     }
   };
   
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      flexDirection: 'row',
-      justifyContent: 'center',
-      alignItems: 'flex-start',
-      width: 0.8*width,
-      left: 0.1*width,
-      right: 0.1*width,
-    },
-    containerBoxes: {
-      flex: 1,
-      flexDirection: 'row',
-      justifyContent: 'center',
-      alignItems: 'flex-start',
-      paddingTop: 20,
-      zIndex: 2,
-      width: width,
-      height: 130,
-    },
-    modalView: {
-        position: 'absolute',
-        top: '40%',
-        left: 0.05*width,
-        width: 0.9*width,
-        height: 160,
-        backgroundColor: 'white',
-        borderRadius: 10,
-        paddingTop: 20,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 2,
-        },
-        shadowOpacity: 0.75,
-        shadowRadius: 4,
-        elevation: 5,
-      },
-      modalAlarmView: {
-        position: 'absolute',
-        top: '40%',
-        left: 0.05*width,
-        width: 0.9*width,
-        height: 180,
-        backgroundColor: 'white',
-        borderRadius: 10,
-        paddingTop: 20,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 2,
-        },
-        shadowOpacity: 0.75,
-        shadowRadius: 4,
-        elevation: 5,
-      },
-      textModalHeader: {
-        fontWeight: 'bold',
-        fontSize: 20,
-        color: 'black',
-      },
-      textModalAlarmHeader: {
-        fontWeight: 'bold',
-        fontSize: 20,
-        color: '#f54248',
-      },
-      textModal: {
-        fontSize: 16,
-        margin: 10,
-        textAlign: 'center',
-        color: 'black',
-      },
-      pressableViewLeft: {
-        width: 0.4* width,
-        alignContent: 'center',
-        justifyContent: 'center',
-        paddingTop: 10,
-        marginLeft: 20,
-        marginRight: 20,
-      },
-      pressableViewRight: {
-        width: 0.4* width,
-        alignContent: 'center',
-        justifyContent: 'center',
-        paddingTop: 10,
-        marginRight: 20,
-      },
-      textButtonDontSend: {
-        fontSize: 16,
-        color: 'blue',
-        textAlign: 'center'
-      },
-      textButtonSend: {
-        fontSize: 16,
-        color: 'white',
-        textAlign: 'center',
-      },
-      buttonDontSend: {
-        borderColor: 'blue',
-        borderWidth: 3,
-        width: 120,
-        height: 40,
-        alignContent: 'center',
-        justifyContent: 'center',
-        borderRadius: 10,
-      },
-      buttonSend: {
-        backgroundColor: 'blue',
-        borderColor: 'blue',
-        width: 120,
-        height: 40,
-        alignContent: 'center',
-        justifyContent: 'center',
-        borderRadius: 10,
-      },
-      buttonAlarmClose: {
-        backgroundColor: '#f54248',
-        borderColor: '#f54248',
-        width: 140,
-        height: 40,
-        alignContent: 'center',
-        justifyContent: 'center',
-        borderRadius: 10,
-      },
-      pressableView: {
-        width: 160,
-        height: 40,
-        alignContent: 'center',
-        justifyContent: 'center',
-        paddingLeft: 10,
-        paddingTop: 10,
-      },
-      textBoxHeader: {
-        fontSize: 18,
-        paddingLeft: 10,
-        paddingTop: 5,
-        fontWeight: 'bold',
-      },
-      buttonEndRoute: {
-        width: 160, 
-        height: 40,
-        alignContent: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'blue',
-        borderRadius: 10,
-        marginTop: 10,
-      },
-      buttonAlarm: {
-        width: 160, 
-        height: 40,
-        alignContent: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#f54248',
-        borderRadius: 10,
-        marginTop: 10,
-      },
-      boxRoute: {
-        width: 190,
-        height: 95, 
-        backgroundColor: 'white', 
-        marginHorizontal: 5, 
-        borderWidth: 5,
-        borderColor: 'blue',
-        borderRadius: 10,
-      },
-      boxAlarm: {
-        width: 190,
-        height: 95, 
-        backgroundColor: 'white', 
-        marginHorizontal: 5, 
-        borderWidth: 5,
-        borderColor: '#f54248',
-        borderRadius: 10,
-      },
-      textButton: {
-        textAlign: 'center',
-        fontSize: 18,
-      },
-});
-  
-  export default Routing;
+export default Routing;

@@ -27,7 +27,7 @@ function dateAndTime() {
     return dateAndTimeString;
 }
 
-function getRecommendation (weather) {
+function getWeatherRecommendation (weather) {
     const timeStamp = Math.floor(new Date() / 1000);
     let dayLight = false;
     let badConditions = false;   
@@ -55,4 +55,4 @@ function getRecommendation (weather) {
 }
 
 
-module.exports = {combineLists, dateAndTime, getRecommendation};
+module.exports = {combineLists, dateAndTime, getWeatherRecommendation};

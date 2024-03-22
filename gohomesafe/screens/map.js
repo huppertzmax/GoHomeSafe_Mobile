@@ -2,9 +2,10 @@ import React, {Component} from 'react';
 import { StyleSheet, Text, View, Dimensions, Pressable, Image } from 'react-native';
 import MapView, {Marker, Polyline} from 'react-native-maps'
 import { safestRoute, fastestRoute, cctvLocations } from '../api/api';
+import { map_style } from '../styles/map_style';
 
 const { width } = Dimensions.get('window');
-const {combineLists, dateAndTime, getRecommendation} = require('../utils/utils');
+const {combineLists, dateAndTime, getWeatherRecommendation} = require('../utils/utils');
 
 
 
@@ -95,33 +96,33 @@ class Map extends Component {
 
     return (
       <View style={{ flex: 1 }}>
-        <View style={styles.container} pointerEvents="box-none">
-          <View style={styles.boxSafest}>
-            <Text style={styles.textBoxHeader}>Safest route</Text>
+        <View style={map_style.container} pointerEvents="box-none">
+          <View style={map_style.boxSafest}>
+            <Text style={map_style.textBoxHeader}>Safest route</Text>
 
-            <Text style={styles.textBoxStats}>
+            <Text style={map_style.textBoxStats}>
               Length: {this.state.length_safest.toFixed(2)} m{'\n'}
               Duration: {this.state.duration_safest.toFixed(1)} min
             </Text>
 
-            <View style={styles.pressableView}>
-              <Pressable onPress={startSafe} style={styles.buttonSafe}>
-                <Text style={styles.textButton}>Start safest</Text>
+            <View style={map_style.pressableView}>
+              <Pressable onPress={startSafe} style={map_style.buttonSafe}>
+                <Text style={map_style.textButton}>Start safest</Text>
               </Pressable>
             </View>
           </View>
 
-          <View style={styles.boxFastest}>
-            <Text style={styles.textBoxHeader}>Fastest route</Text>
+          <View style={map_style.boxFastest}>
+            <Text style={map_style.textBoxHeader}>Fastest route</Text>
 
-            <Text style={styles.textBoxStats} >
+            <Text style={map_style.textBoxStats} >
               Length: {this.state.length_fastest.toFixed(2)} m{'\n'}
               Duration: {this.state.duration_fastest.toFixed(1)} min
             </Text>
 
-            <View style={styles.pressableView}>
-              <Pressable onPress={startFast} style={styles.buttonFast}>
-                <Text style={styles.textButton}>Start fastest</Text>
+            <View style={map_style.pressableView}>
+              <Pressable onPress={startFast} style={map_style.buttonFast}>
+                <Text style={map_style.textButton}>Start fastest</Text>
               </Pressable>
             </View>
           </View>
@@ -193,76 +194,5 @@ class Map extends Component {
     );
   }
 };
-
-const styles = StyleSheet.create({
-  boxFastest: {
-    width: 190,
-    height: 130, 
-    backgroundColor: 'white', 
-    marginHorizontal: 5, 
-    borderWidth: 5,
-    borderColor: '#f54248',
-    borderRadius: 10,
-  },
-  boxSafest: {
-    width: 190,
-    height: 130, 
-    backgroundColor: 'white', 
-    marginHorizontal: 5, 
-    borderWidth: 5,
-    borderColor: '#009c05',
-    borderRadius: 10,
-  },
-  container: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    paddingTop: 20,
-    zIndex: 2,
-    width: width,
-    height: 130,
-  },
-  textBoxHeader: {
-    fontSize: 18,
-    paddingLeft: 10,
-    paddingTop: 5,
-    fontWeight: 'bold',
-  },
-  textBoxStats: {
-    fontSize: 16,
-    paddingLeft: 10,
-    paddingTop: 2,
-  },
-  buttonSafe: {
-    width: 160, 
-    height: 40,
-    alignContent: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#009c05',
-    borderRadius: 10,
-  },
-  buttonFast: {
-    width: 160, 
-    height: 40,
-    alignContent: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f54248',
-    borderRadius: 10,
-
-  },
-  textButton: {
-    textAlign: 'center',
-    fontSize: 18,
-  },
-  pressableView: {
-    width: 160,
-    height: 40,
-    alignContent: 'center',
-    justifyContent: 'center',
-    paddingLeft: 10,
-    paddingTop: 10,
-  }
-});
 
 export default Map;
